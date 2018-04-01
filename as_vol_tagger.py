@@ -5,8 +5,16 @@ logger = logging.getLogger('tagger')
 logger.setLevel(logging.INFO)
 logging.basicConfig()
 
-def recieve_request(request):
-	return request.instance_id
+def lambda_handler(event, context):
+	try:
+		instance_id = get_instance_id(event)
+		copy_tags_to_volumes(instance_id)
+	except Exception as e:
+		logger.error('Something went wrong: ' + str(e))
+		return False
+
+def get_instance_id(event_json):
+	return event_json['detail']['EC2InstanceId']
 
 def tag_key_exists(tag,tags):
 	if tags:
